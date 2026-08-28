@@ -86,16 +86,16 @@ h1 em,h2 em { color: var(--blue); font-family: Georgia, 'Times New Roman', serif
 .light-heading > p { color: #9da096; }.portfolio-section .section-kicker { color: var(--acid); }
 .portfolio-workbench { display: grid; grid-template-columns: minmax(0,1.65fr) minmax(280px,.65fr); gap: 20px; }
 .composition-card,.company-inspector { border: 1px solid rgba(255,255,255,.2); background: #151612; }
-.composition-card { min-height: 620px; padding: 24px; }
+.composition-card { min-height: 620px; padding: 24px; container-type: inline-size; }
 .composition-card-header { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding-bottom: 22px; border-bottom: 1px solid rgba(255,255,255,.16); }
 .composition-card-header > div:first-child { display: grid; gap: 5px; color: #c6c8bf; font: 500 10px var(--font-geist-mono),monospace; text-transform: uppercase; letter-spacing: .09em; }
 .composition-card-header > div:first-child small { color: #73766d; font-size: 8px; }
 .composition-filter { display: flex; padding: 3px; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; }
 .composition-filter button { padding: 9px 13px; border: 0; border-radius: 999px; background: transparent; color: #8f9288; font-size: 10px; cursor: pointer; transition: background .2s ease,color .2s ease; }
 .composition-filter button:hover { color: white; }.composition-filter button.active { background: var(--acid); color: var(--ink); }
-.composition-layout { min-height: 520px; display: grid; grid-template-columns: minmax(320px,.95fr) minmax(300px,1.05fr); gap: 28px; align-items: center; }
-.donut-wrap { display: grid; place-items: center; padding: 34px 10px; }
-.portfolio-donut { width: min(31vw,410px); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; position: relative; transform: rotate(-45deg); box-shadow: 0 0 0 1px rgba(255,255,255,.12),0 30px 70px rgba(0,0,0,.28); transition: background .5s cubic-bezier(.2,.8,.2,1); }
+.composition-layout { min-height: 520px; min-width: 0; display: grid; grid-template-columns: minmax(280px,.95fr) minmax(280px,1.05fr); gap: clamp(18px,3cqi,32px); align-items: center; }
+.donut-wrap { min-width: 0; display: grid; place-items: center; padding: clamp(20px,4cqi,40px) 0; }
+.portfolio-donut { inline-size: min(100%,410px); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; position: relative; transform: rotate(-45deg); box-shadow: 0 0 0 1px rgba(255,255,255,.12),0 30px 70px rgba(0,0,0,.28); transition: background .5s cubic-bezier(.2,.8,.2,1),inline-size .35s cubic-bezier(.2,.8,.2,1); }
 .portfolio-donut::after { content: ''; position: absolute; inset: 23%; border-radius: 50%; background: #151612; box-shadow: inset 0 0 0 1px rgba(255,255,255,.16),0 0 35px rgba(0,0,0,.2); }
 .donut-center { width: 54%; position: relative; z-index: 1; display: grid; gap: 7px; text-align: center; transform: rotate(45deg); }
 .donut-center small { color: #7f8278; font: 500 8px/1.5 var(--font-geist-mono),monospace; text-transform: uppercase; letter-spacing: .1em; }
@@ -104,6 +104,19 @@ h1 em,h2 em { color: var(--blue); font-family: Georgia, 'Times New Roman', serif
 .portfolio-legend button { min-width: 0; display: grid; grid-template-columns: 9px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 12px; border: 1px solid transparent; background: transparent; color: #d3d5cd; text-align: left; cursor: pointer; transition: border-color .2s ease,background .2s ease,transform .2s ease; }
 .portfolio-legend button:hover { background: rgba(255,255,255,.04); transform: translateX(2px); }.portfolio-legend button.active { border-color: rgba(255,255,255,.34); background: rgba(255,255,255,.06); }
 .portfolio-legend button > i { width: 9px; height: 9px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(255,255,255,.18); }.portfolio-legend button > span { min-width: 0; display: grid; gap: 3px; }.portfolio-legend b { overflow: hidden; text-overflow: ellipsis; font-size: 11px; white-space: nowrap; }.portfolio-legend small { color: #74776e; font: 500 8px var(--font-geist-mono),monospace; }.portfolio-legend em { color: #9da097; font: normal 600 9px var(--font-geist-mono),monospace; }
+
+@container (max-width: 720px) {
+  .composition-layout { min-height: 0; grid-template-columns: 1fr; }
+  .portfolio-donut { inline-size: min(72cqi,410px); }
+}
+
+@container (max-width: 480px) {
+  .composition-card-header { align-items: flex-start; flex-direction: column; }
+  .composition-filter { width: 100%; }
+  .composition-filter button { flex: 1; padding-inline: 7px; font-size: 8px; }
+  .portfolio-donut { inline-size: min(84cqi,340px); }
+  .portfolio-legend { grid-template-columns: 1fr; }
+}
 .company-inspector { padding: 28px; display: flex; flex-direction: column; }
 .inspector-label { display: flex; justify-content: space-between; align-items: center; color: #898c82; font: 500 9px var(--font-geist-mono),monospace; text-transform: uppercase; letter-spacing: .1em; }
 .status-positive,.status-negative { padding: 5px 7px; border-radius: 999px; }.status-positive { color: var(--acid); border: 1px solid rgba(215,255,55,.3); }.status-negative { color: var(--red); border: 1px solid rgba(255,110,91,.3); }

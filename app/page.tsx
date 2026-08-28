@@ -74,10 +74,10 @@ const formatEuroCompact = (value: number) => value === 0
   ? '€0.00m'
   : `€${(value / 1_000_000).toFixed(value >= 10_000_000 ? 1 : 2)}m`;
 
-function makeDonutGradient(metric: PortfolioMetric) {
-  const total = portfolio.reduce((sum, company) => sum + company[metric], 0);
+function makeDonutGradient(metric: PortfolioMetric, companies: typeof portfolio) {
+  const total = companies.reduce((sum, company) => sum + company[metric], 0);
   let cursor = 0;
-  return portfolio
+  return companies
     .filter((company) => company[metric] > 0)
     .map((company) => {
       const start = cursor;
@@ -102,7 +102,14 @@ export default function Home() {
   const portfolioTotal = portfolio.reduce((sum, company) => sum + company[portfolioMetric], 0);
   const selectedMetricValue = selected[portfolioMetric];
   const selectedShare = portfolioTotal > 0 ? (selectedMetricValue / portfolioTotal) * 100 : 0;
-  const donutGradient = useMemo(() => makeDonutGradient(portfolioMetric), [portfolioMetric]);
+  const compositionPortfolio = useMemo(
+    () => [...portfolio].sort((a, b) => b[portfolioMetric] - a[portfolioMetric]),
+    [portfolioMetric],
+  );
+  const donutGradient = useMemo(
+    () => makeDonutGradient(portfolioMetric, compositionPortfolio),
+    [portfolioMetric, compositionPortfolio],
+  );
   const rankedPortfolio = useMemo(
     () => [...portfolio].sort((a, b) => sortMode === 'moic' ? b.moic - a.moic : (b.irr ?? -100) - (a.irr ?? -100)),
     [sortMode],
@@ -249,7 +256,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="portfolio-legend" role="list" aria-label={`${activeMetric.label} legend`}>
-                  {portfolio.map((company) => {
+                  {compositionPortfolio.map((company) => {
                     const share = portfolioTotal > 0 ? (company[portfolioMetric] / portfolioTotal) * 100 : 0;
                     return (
                       <button key={company.name} role="listitem" className={company.name === selectedCompany ? 'active' : ''} onClick={() => setSelectedCompany(company.name)}>
