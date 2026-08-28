@@ -376,7 +376,7 @@ export default function Home() {
             <div className="cashflow-header">
               <div>
                 <p className="section-kicker">Aggregated cash flows</p>
-                <h3>From deployment<br />to terminal value.</h3>
+                <h3>Cash flows by<br />year and type.</h3>
               </div>
               <div className="cashflow-return-summary" aria-label="Pre Series E fund performance">
                 <span><small>Gross IRR</small><strong>12.0%</strong></span>
@@ -461,7 +461,7 @@ export default function Home() {
       <section id="series-e" className="series-section section-shell reveal">
         <header className="section-heading">
           <div><p className="section-kicker">02 / Deal impact</p><span className="section-tag dark-tag">Solarisbank Series E</span></div>
-          <h2>A follow-on round<br /><em>reshapes the view.</em></h2>
+          <h2>Series E<br /><em>valuation impact.</em></h2>
           <p>Post-money valuation and fully diluted ownership translate the round terms into a new holding value, which then flows through to company and fund returns.</p>
         </header>
 
@@ -497,7 +497,7 @@ export default function Home() {
         <div className="section-shell reveal">
           <header className="section-heading capital-heading">
             <div><p className="section-kicker">03 / Capital call</p><span className="section-tag light-tag">LP allocation</span></div>
-            <h2>4.65m called.<br /><em>Fully allocated.</em></h2>
+            <h2>Capital call<br /><em>allocation.</em></h2>
             <p>The follow-on investment, management fee and fund expenses are allocated pro rata across ten limited partners.</p>
           </header>
 
@@ -530,7 +530,7 @@ export default function Home() {
         <header className="section-heading">
           <div><p className="section-kicker">04 / LP performance</p><span className="section-tag dark-tag">Post Series E</span></div>
           <h2>From paid-in capital<br />to <em>total value.</em></h2>
-          <p>A transparent bridge from contributions to realised and residual value makes the LP outcome both understandable and auditable.</p>
+          <p>Paid-in capital, distributions and residual value are used to calculate DPI, RVPI and TVPI.</p>
         </header>
 
         <div className="value-bridge">
@@ -591,7 +591,7 @@ export default function Home() {
         <div className="section-shell footer-grid">
           <div><span className="footer-mark">A</span><p>Project A Venture Fund VII<br />Reporting Case Study</p></div>
           <div><small>Case focus</small><p>Portfolio performance<br />Series E impact<br />LP reporting</p></div>
-          <div><small>Approach</small><p>Analytical rigor<br />Auditability<br />Modern data UX</p></div>
+          <div><small>Metrics</small><p>Gross IRR<br />Gross MOIC<br />DPI, RVPI and TVPI</p></div>
           <div className="footer-end"><a href="#top">Back to top ↑</a><small>Prepared for recruiting purposes</small></div>
         </div>
       </footer>
