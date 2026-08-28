@@ -193,13 +193,14 @@ export default function Home() {
   return (
     <main>
       <div className="scroll-progress" style={{ width: `${scrollProgress}%` }} />
+      <aside className="currency-disclaimer" role="note" aria-label="Currency disclosure">
+        <span>Currency disclosure</span>
+        <strong>Monetary figures are intentionally presented without a currency unit.</strong>
+      </aside>
       <nav className="site-nav" aria-label="Primary navigation">
         <a className="wordmark" href="#top" aria-label="Project A case study home">
           <span className="mark">A</span>
-          <span className="wordmark-copy">
-            <strong>Fund VII Reporting Case Study</strong>
-            <small>Monetary figures shown without a currency unit</small>
-          </span>
+          <span>Fund VII Reporting Case Study</span>
         </a>
         <div className="nav-links">
           {[
