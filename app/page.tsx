@@ -213,34 +213,55 @@ export default function Home() {
 
       <section id="top" className="hero section-shell">
         <div className="hero-copy reveal is-visible">
-          <div className="eyebrow"><span className="live-dot" /> Venture Fund Reporting Case Study</div>
-          <h1>From fund data<br />to <em>decision clarity.</em></h1>
+          <div className="eyebrow"><span className="live-dot" /> Project A · Fund Reporting Case Study</div>
+          <h1 className="hero-title">Project A Fund VII.<br /><em>Reporting Case Study.</em></h1>
           <p className="hero-lede">
-            An interactive performance review of a fictitious ten-company portfolio — translating cash flows,
-            a Series E financing and LP economics into an auditable investment story.
+            Ten companies, aggregated cash flows, portfolio performance, the Solarisbank Series E,
+            capital-call allocation and LP economics — reported as of 28 August 2026.
           </p>
           <div className="hero-actions">
             <a className="button-primary" href="#portfolio">Explore performance <span>↓</span></a>
-            <span className="report-date"><small>Reporting date</small>28 August 2026</span>
+            <span className="report-date"><small>Prepared by</small>Juma Ngnoubamdjum</span>
           </div>
         </div>
 
-        <div className="hero-visual reveal is-visible" aria-label="Portfolio performance preview">
+        <div className="hero-visual reveal is-visible" role="img" aria-label="Fund reporting map: ten portfolio companies and 84 million euros invested flow into Project A Ventures Fund VII with 12.0 percent pre-Series E gross IRR and 2.38 times gross MOIC, followed by Series E, capital call and LP performance reporting outputs.">
           <div className="visual-topline">
-            <span>Fund trajectory</span><span className="mono">PRE → POST</span>
+            <span>Fund reporting map</span><span className="mono">2016 → 2026</span>
           </div>
-          <div className="trajectory-grid">
-            <div className="trajectory-axis"><span>14%</span><span>12%</span><span>10%</span></div>
-            <div className="trajectory-chart">
-              <span className="grid-line line-one" /><span className="grid-line line-two" /><span className="grid-line line-three" />
-              <span className="data-line" />
-              <span className="data-point point-pre"><b>12.0%</b><small>Pre</small></span>
-              <span className="data-point point-post"><b>13.6%</b><small>Post</small></span>
+
+          <div className="reporting-map">
+            <div className="report-input-card">
+              <div><small>Portfolio input</small><strong>10 companies</strong></div>
+              <div className="report-company-dots" aria-hidden="true">
+                {portfolio.map((company) => <i key={company.name} title={company.name} style={{ background: company.color }} />)}
+              </div>
+              <div className="report-input-value"><strong>€84.0m</strong><small>Invested capital</small></div>
             </div>
-          </div>
-          <div className="visual-footer">
-            <div><small>Gross IRR uplift</small><strong>+160 bps</strong></div>
-            <div><small>Gross MOIC uplift</small><strong>+0.20×</strong></div>
+
+            <div className="report-flow"><span>Aggregated cash flows</span></div>
+
+            <div className="report-fund-core">
+              <div className="report-core-label"><span>Project A Ventures</span><strong>Fund VII</strong><small>Pre Series E</small></div>
+              <div className="report-core-metrics">
+                <span><strong>12.0%</strong><small>Gross IRR</small></span>
+                <span><strong>2.38×</strong><small>Gross MOIC</small></span>
+              </div>
+            </div>
+
+            <div className="report-branch" aria-hidden="true"><i /><i /><i /></div>
+
+            <div className="report-output-grid">
+              <article>
+                <small>Series E impact</small><strong>€47.5m</strong><span>Holding value · 13.6% fund IRR</span>
+              </article>
+              <article>
+                <small>Capital call</small><strong>€4.65m</strong><span>100% allocated to LPs</span>
+              </article>
+              <article>
+                <small>LP performance</small><strong>2.00×</strong><span>TVPI · 0.33× DPI · 1.68× RVPI</span>
+              </article>
+            </div>
           </div>
         </div>
       </section>
