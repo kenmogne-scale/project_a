@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Lenis from 'lenis';
 
 type SortMode = 'irr' | 'moic';
 type PortfolioMetric = 'invested' | 'realised' | 'unrealised';
@@ -161,6 +162,17 @@ export default function Home() {
   };
 
   useEffect(() => {
+    const lenis = new Lenis({
+      autoRaf: true,
+      smoothWheel: true,
+      syncTouch: false,
+      lerp: 0.1,
+      wheelMultiplier: 1,
+      anchors: { duration: 1.1 },
+      stopInertiaOnNavigate: true,
+      respectReducedMotion: true,
+    });
+
     const revealObserver = new IntersectionObserver(
       (entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add('is-visible')),
       { threshold: 0.12 },
@@ -180,6 +192,7 @@ export default function Home() {
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
     return () => {
+      lenis.destroy();
       revealObserver.disconnect();
       sectionObserver.disconnect();
       window.removeEventListener('scroll', onScroll);
