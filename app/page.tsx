@@ -217,7 +217,7 @@ export default function Home() {
           <h1 className="hero-title">Project A Fund VII.<br /><em>Reporting Case Study.</em></h1>
           <p className="hero-lede">
             Ten companies, aggregated cash flows, portfolio performance, the Solarisbank Series E,
-            capital-call allocation and LP economics — reported as of 28 August 2026.
+            capital-call allocation and LP economics, reported as of 28 August 2026.
           </p>
           <div className="hero-actions">
             <a className="button-primary" href="#portfolio">Explore performance <span>↓</span></a>
@@ -283,7 +283,7 @@ export default function Home() {
         </div>
         <p className="executive-note">
           The Series E improves both fund-level return measures, while the LP value remains primarily unrealised.
-          The result is attractive — and still dependent on future portfolio liquidity.
+          The result is attractive, but still dependent on future portfolio liquidity.
         </p>
       </section>
 
@@ -292,7 +292,7 @@ export default function Home() {
           <header className="section-heading light-heading">
             <div><p className="section-kicker">01 / Portfolio performance</p><span className="section-tag">Pre Series E</span></div>
             <h2>Ten companies.<br /><em>One fund view.</em></h2>
-            <p>Switch between invested cost, realised proceeds and residual value to see how each company contributes to the portfolio — then inspect return quality below.</p>
+            <p>Switch between invested cost, realised proceeds and residual value to see how each company contributes to the portfolio. You can then inspect return quality below.</p>
           </header>
 
           <div className="portfolio-workbench">
@@ -334,7 +334,7 @@ export default function Home() {
                     const share = portfolioTotal > 0 ? (company[portfolioMetric] / portfolioTotal) * 100 : 0;
                     return (
                       <button key={company.name} role="listitem" className={company.name === selectedCompany ? 'active' : ''} onClick={() => setSelectedCompany(company.name)}>
-                        <i style={{ background: company.color }} /><span><b>{company.name}</b><small>{formatEuroCompact(company[portfolioMetric])}</small></span><em>{company[portfolioMetric] === 0 ? '—' : `${share.toFixed(1)}%`}</em>
+                        <i style={{ background: company.color }} /><span><b>{company.name}</b><small>{formatEuroCompact(company[portfolioMetric])}</small></span><em>{company[portfolioMetric] === 0 ? '0.0%' : `${share.toFixed(1)}%`}</em>
                       </button>
                     );
                   })}
@@ -415,7 +415,7 @@ export default function Home() {
 
             <div className="cashflow-footer">
               <div className="cashflow-legend"><span><i className="invested-key" />Invested</span><span><i className="realised-key" />Realised</span><span><i className="unrealised-key" />Unrealised</span></div>
-              <p>Unrealised value is treated as a terminal positive flow on 28 August 2026 for the XIRR calculation — it is not a cash distribution.</p>
+              <p>Unrealised value is treated as a terminal positive flow on 28 August 2026 for the XIRR calculation. It is not a cash distribution.</p>
             </div>
           </div>
 
@@ -445,7 +445,7 @@ export default function Home() {
         <header className="section-heading">
           <div><p className="section-kicker">02 / Deal impact</p><span className="section-tag dark-tag">Solarisbank Series E</span></div>
           <h2>A follow-on round<br /><em>reshapes the view.</em></h2>
-          <p>Post-money valuation and fully diluted ownership translate the round terms into a new holding value — then flow through to company and fund returns.</p>
+          <p>Post-money valuation and fully diluted ownership translate the round terms into a new holding value, which then flows through to company and fund returns.</p>
         </header>
 
         <div className="deal-equation" aria-label="Series E valuation equation">
