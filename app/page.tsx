@@ -196,7 +196,7 @@ export default function Home() {
       <nav className="site-nav" aria-label="Primary navigation">
         <a className="wordmark" href="#top" aria-label="Project A case study home">
           <span className="mark">A</span>
-          <span>Fund VII / Case 2026</span>
+          <span>Fund VII Reporting Case Study</span>
         </a>
         <div className="nav-links">
           {[
@@ -213,7 +213,7 @@ export default function Home() {
 
       <section id="top" className="hero section-shell">
         <div className="hero-copy reveal is-visible">
-          <div className="eyebrow"><span className="live-dot" /> Project A · Fund Reporting Case Study</div>
+          <div className="eyebrow"><span className="live-dot" /> Juma Ngnoubamdjum · Application for Junior Fund Reporting Manager</div>
           <h1 className="hero-title">Project A Fund VII.<br /><em>Reporting Case Study.</em></h1>
           <p className="hero-lede">
             Ten companies, aggregated cash flows, portfolio performance, the Solarisbank Series E,
@@ -221,7 +221,7 @@ export default function Home() {
           </p>
           <div className="hero-actions">
             <a className="button-primary" href="#portfolio">Explore performance <span>↓</span></a>
-            <span className="report-date"><small>Prepared by</small>Juma Ngnoubamdjum</span>
+            <span className="report-date"><small>Reporting date</small>28 August 2026</span>
           </div>
         </div>
 
