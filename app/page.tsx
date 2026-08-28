@@ -31,6 +31,26 @@ const metricOptions: { key: PortfolioMetric; label: string; shortLabel: string }
   { key: 'unrealised', label: 'Unrealised capital', shortLabel: 'unrealised capital' },
 ];
 
+const cashFlowData = [
+  { year: 2016, invested: -1751458, realised: 0, unrealised: 0 },
+  { year: 2017, invested: -10121071, realised: 0, unrealised: 0 },
+  { year: 2018, invested: -38388578, realised: 1000000, unrealised: 0 },
+  { year: 2019, invested: -26177691, realised: 500000, unrealised: 0 },
+  { year: 2020, invested: -7489467, realised: 200000, unrealised: 0 },
+  { year: 2021, invested: -71735, realised: 0, unrealised: 0 },
+  { year: 2026, invested: 0, realised: 35000000, unrealised: 163300000 },
+].map((flow) => ({ ...flow, net: flow.invested + flow.realised + flow.unrealised }));
+
+const cashFlowTotals = cashFlowData.reduce(
+  (totals, flow) => ({
+    invested: totals.invested + flow.invested,
+    realised: totals.realised + flow.realised,
+    unrealised: totals.unrealised + flow.unrealised,
+    net: totals.net + flow.net,
+  }),
+  { invested: 0, realised: 0, unrealised: 0, net: 0 },
+);
+
 const lpAllocations = [
   { name: 'Mark Zuckerberg', share: 22, call: 1023000 },
   { name: 'Warren Buffett', share: 15, call: 697500 },
@@ -74,6 +94,13 @@ const formatEuroCompact = (value: number) => value === 0
   ? '€0.00m'
   : `€${(value / 1_000_000).toFixed(value >= 10_000_000 ? 1 : 2)}m`;
 
+const formatSignedEuroCompact = (value: number) => {
+  if (value === 0) return '€0.00m';
+  const sign = value > 0 ? '+' : '−';
+  const absoluteValue = Math.abs(value);
+  return `${sign}€${(absoluteValue / 1_000_000).toFixed(absoluteValue >= 10_000_000 ? 1 : 2)}m`;
+};
+
 function makeDonutSegments(metric: PortfolioMetric, companies: typeof portfolio) {
   const total = companies.reduce((sum, company) => sum + company[metric], 0);
   let cursor = 0;
@@ -100,6 +127,7 @@ function makeDonutSegments(metric: PortfolioMetric, companies: typeof portfolio)
 export default function Home() {
   const [selectedCompany, setSelectedCompany] = useState('Netflix');
   const [portfolioMetric, setPortfolioMetric] = useState<PortfolioMetric>('invested');
+  const [selectedCashFlowYear, setSelectedCashFlowYear] = useState(2026);
   const [sortMode, setSortMode] = useState<SortMode>('moic');
   const [roundView, setRoundView] = useState<'pre' | 'post'>('post');
   const [activeSection, setActiveSection] = useState('top');
@@ -118,6 +146,9 @@ export default function Home() {
     () => makeDonutSegments(portfolioMetric, compositionPortfolio),
     [portfolioMetric, compositionPortfolio],
   );
+  const selectedCashFlow = cashFlowData.find((flow) => flow.year === selectedCashFlowYear) ?? cashFlowData.at(-1)!;
+  const maxPositiveCashFlow = Math.max(...cashFlowData.map((flow) => flow.realised + flow.unrealised));
+  const maxNegativeCashFlow = Math.max(...cashFlowData.map((flow) => Math.abs(flow.invested)));
   const rankedPortfolio = useMemo(
     () => [...portfolio].sort((a, b) => sortMode === 'moic' ? b.moic - a.moic : (b.irr ?? -100) - (a.irr ?? -100)),
     [sortMode],
@@ -301,6 +332,70 @@ export default function Home() {
               </div>
               <p>{selectedMetricValue === 0 ? `${selected.name} has no ${activeMetric.shortLabel} in the supplied pre-round portfolio data.` : `${selected.name} represents ${selectedShare.toFixed(1)}% of total ${activeMetric.shortLabel}. Its return profile remains visible alongside the allocation view.`}</p>
             </aside>
+          </div>
+
+          <div className="cashflow-panel">
+            <div className="cashflow-header">
+              <div>
+                <p className="section-kicker">Aggregated cash flows</p>
+                <h3>From deployment<br />to terminal value.</h3>
+              </div>
+              <div className="cashflow-return-summary" aria-label="Pre Series E fund performance">
+                <span><small>Gross IRR</small><strong>12.0%</strong></span>
+                <span><small>Gross MOIC</small><strong>2.38×</strong></span>
+              </div>
+            </div>
+
+            <div className="cashflow-total-grid" aria-label="Aggregated cash flow totals">
+              <article><small>Capital deployed</small><strong>{formatEuroCompact(Math.abs(cashFlowTotals.invested))}</strong><span>2016–2021</span></article>
+              <article><small>Realised proceeds</small><strong>{formatSignedEuroCompact(cashFlowTotals.realised)}</strong><span>Cash returned</span></article>
+              <article><small>Residual value</small><strong>{formatSignedEuroCompact(cashFlowTotals.unrealised)}</strong><span>At reporting date</span></article>
+              <article className="cashflow-total-emphasis"><small>Net value bridge</small><strong>{formatSignedEuroCompact(cashFlowTotals.net)}</strong><span>Aggregated flow</span></article>
+            </div>
+
+            <div className="cashflow-visual" aria-label="Annual aggregated fund cash flows">
+              <div className="cashflow-chart">
+                {cashFlowData.map((flow) => {
+                  const positive = flow.realised + flow.unrealised;
+                  const positiveHeight = positive > 0 ? Math.max((positive / maxPositiveCashFlow) * 100, 2.5) : 0;
+                  const negativeHeight = Math.abs(flow.invested) / maxNegativeCashFlow * 100;
+                  return (
+                    <button
+                      key={flow.year}
+                      type="button"
+                      className={`cashflow-year ${flow.year === selectedCashFlowYear ? 'active' : ''}`}
+                      onClick={() => setSelectedCashFlowYear(flow.year)}
+                      aria-label={`${flow.year}: net cash flow ${formatSignedEuroCompact(flow.net)}`}
+                      aria-pressed={flow.year === selectedCashFlowYear}
+                    >
+                      <span className="cashflow-positive-lane">
+                        <i className="cashflow-positive-stack" style={{ height: `${positiveHeight}%` }}>
+                          {flow.realised > 0 && <b className="cashflow-realised" style={{ flexGrow: flow.realised }} />}
+                          {flow.unrealised > 0 && <b className="cashflow-unrealised" style={{ flexGrow: flow.unrealised }} />}
+                        </i>
+                      </span>
+                      <span className="cashflow-axis"><i /></span>
+                      <strong>{flow.year}</strong>
+                      <span className="cashflow-negative-lane"><i style={{ height: `${negativeHeight}%` }} /></span>
+                      <em className={flow.net < 0 ? 'negative-text' : ''}>{formatSignedEuroCompact(flow.net)}</em>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="cashflow-year-detail" aria-live="polite">
+                <div><small>Selected year</small><strong>{selectedCashFlow.year}</strong></div>
+                <div><small>Invested</small><strong className="negative-text">{formatSignedEuroCompact(selectedCashFlow.invested)}</strong></div>
+                <div><small>Realised</small><strong>{formatSignedEuroCompact(selectedCashFlow.realised)}</strong></div>
+                <div><small>Unrealised</small><strong>{formatSignedEuroCompact(selectedCashFlow.unrealised)}</strong></div>
+                <div><small>Net flow</small><strong className={selectedCashFlow.net < 0 ? 'negative-text' : 'positive-text'}>{formatSignedEuroCompact(selectedCashFlow.net)}</strong></div>
+              </div>
+            </div>
+
+            <div className="cashflow-footer">
+              <div className="cashflow-legend"><span><i className="invested-key" />Invested</span><span><i className="realised-key" />Realised</span><span><i className="unrealised-key" />Unrealised</span></div>
+              <p>Unrealised value is treated as a terminal positive flow on 28 August 2026 for the XIRR calculation — it is not a cash distribution.</p>
+            </div>
           </div>
 
           <div className="ranking-panel">
