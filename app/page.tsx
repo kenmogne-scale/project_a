@@ -67,23 +67,23 @@ const lpAllocations = [
 const methods = [
   {
     title: 'Gross IRR',
-    formula: 'XIRR (portfolio cash flows, transaction dates)',
-    copy: 'Annualised return based on the timing of invested capital, realised proceeds and the reporting-date residual value.',
+    formula: 'XIRR of dated portfolio cash flows',
+    copy: 'Measures the annualised return using the timing of investments, proceeds and residual value at the reporting date.',
   },
   {
     title: 'Gross MOIC',
-    formula: '(Realised + Unrealised Value) / Invested Capital',
-    copy: 'A time-independent value multiple used alongside IRR to separate absolute value creation from investment timing.',
+    formula: '(Realised value + Unrealised value) / Invested capital',
+    copy: 'Shows total value relative to invested capital. It does not account for timing.',
   },
   {
     title: 'LP Performance',
     formula: 'TVPI = DPI + RVPI',
-    copy: 'DPI captures distributions over paid-in capital; RVPI captures net residual value over paid-in capital.',
+    copy: 'DPI measures distributed value. RVPI measures remaining value. Both are divided by paid-in capital.',
   },
   {
-    title: 'Core assumptions',
+    title: 'Assumptions',
     formula: 'Reporting date: 28 Aug 2026',
-    copy: 'All realised amounts are treated as distributed. No assets or liabilities exist beyond the supplied case tables.',
+    copy: 'Only the supplied case data is used. Realised amounts are treated as distributions, and unrealised value is included at the reporting date.',
   },
 ];
 
@@ -556,8 +556,8 @@ export default function Home() {
         <div className="section-shell reveal">
           <header className="method-heading">
             <p className="section-kicker">05 / Methodology</p>
-            <h2>Built to be<br /><em>followed.</em></h2>
-            <p>Good reporting does more than surface a number. It makes the logic behind that number easy to inspect, challenge and reproduce.</p>
+            <h2>How the figures<br /><em>are calculated.</em></h2>
+            <p>The analysis uses the supplied case data and standard fund reporting formulas. Open each item to see the calculation and assumptions.</p>
           </header>
           <div className="method-list">
             {methods.map((method, index) => (
@@ -568,8 +568,8 @@ export default function Home() {
             ))}
           </div>
           <div className="method-note">
-            <span>Model conventions</span>
-            <p>Gross returns · XIRR timing · Fully diluted ownership · Fictitious portfolio · Reporting date 28 August 2026</p>
+            <span>Calculation basis</span>
+            <p>Gross returns · Dated cash flows for XIRR · Fully diluted ownership · Reporting date 28 August 2026</p>
           </div>
         </div>
       </section>
