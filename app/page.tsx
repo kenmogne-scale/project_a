@@ -74,19 +74,27 @@ const formatEuroCompact = (value: number) => value === 0
   ? '€0.00m'
   : `€${(value / 1_000_000).toFixed(value >= 10_000_000 ? 1 : 2)}m`;
 
-function makeDonutGradient(metric: PortfolioMetric, companies: typeof portfolio) {
+function makeDonutSegments(metric: PortfolioMetric, companies: typeof portfolio) {
   const total = companies.reduce((sum, company) => sum + company[metric], 0);
   let cursor = 0;
   return companies
     .filter((company) => company[metric] > 0)
     .map((company) => {
-      const start = cursor;
-      const end = start + (company[metric] / total) * 100;
-      cursor = end;
-      const colorEnd = Math.max(start, end - 0.14);
-      return `${company.color} ${start.toFixed(4)}% ${colorEnd.toFixed(4)}%, #151612 ${colorEnd.toFixed(4)}% ${end.toFixed(4)}%`;
-    })
-    .join(', ');
+      const start = cursor * 3.6;
+      const span = (company[metric] / total) * 360;
+      const gap = Math.min(1.4, span * 0.12);
+      const segmentStart = start + gap / 2;
+      const segmentEnd = start + span - gap / 2;
+      const steps = Math.max(2, Math.ceil((segmentEnd - segmentStart) / 7));
+      const arcPoints = Array.from({ length: steps + 1 }, (_, index) => {
+        const angle = (segmentStart + ((segmentEnd - segmentStart) * index) / steps) * (Math.PI / 180);
+        const x = 50 + 50 * Math.sin(angle);
+        const y = 50 - 50 * Math.cos(angle);
+        return `${x.toFixed(3)}% ${y.toFixed(3)}%`;
+      });
+      cursor += company[metric] / total * 100;
+      return { company, clipPath: `polygon(50% 50%, ${arcPoints.join(', ')})` };
+    });
 }
 
 export default function Home() {
@@ -106,8 +114,8 @@ export default function Home() {
     () => [...portfolio].sort((a, b) => b[portfolioMetric] - a[portfolioMetric]),
     [portfolioMetric],
   );
-  const donutGradient = useMemo(
-    () => makeDonutGradient(portfolioMetric, compositionPortfolio),
+  const donutSegments = useMemo(
+    () => makeDonutSegments(portfolioMetric, compositionPortfolio),
     [portfolioMetric, compositionPortfolio],
   );
   const rankedPortfolio = useMemo(
@@ -247,7 +255,21 @@ export default function Home() {
               </div>
               <div className="composition-layout">
                 <div className="donut-wrap">
-                  <div className="portfolio-donut" style={{ background: `conic-gradient(${donutGradient})` }} role="img" aria-label={`${activeMetric.label} by portfolio company`}>
+                  <div className="portfolio-donut" role="group" aria-label={`${activeMetric.label} by portfolio company`}>
+                    {donutSegments.map(({ company, clipPath }) => {
+                      const share = (company[portfolioMetric] / portfolioTotal) * 100;
+                      return (
+                        <button
+                          key={company.name}
+                          type="button"
+                          className={`donut-segment ${company.name === selectedCompany ? 'active' : ''}`}
+                          style={{ background: company.color, clipPath }}
+                          onClick={() => setSelectedCompany(company.name)}
+                          aria-label={`Select ${company.name}, ${share.toFixed(1)}% of ${activeMetric.shortLabel}`}
+                          title={`${company.name} · ${share.toFixed(1)}%`}
+                        />
+                      );
+                    })}
                     <div className="donut-center">
                       <small>Total {activeMetric.shortLabel}</small>
                       <strong>{formatEuroCompact(portfolioTotal)}</strong>
