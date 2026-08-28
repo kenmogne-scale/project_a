@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 type SortMode = 'irr' | 'moic';
+type PortfolioMetric = 'invested' | 'realised' | 'unrealised';
 
 const snapshot = [
   { value: '13.6%', label: 'Post-round Gross IRR', delta: '+1.6pp' },
@@ -12,16 +13,22 @@ const snapshot = [
 ];
 
 const portfolio = [
-  { name: 'Spotify', irr: 2.7, moic: 1.20, value: '€5.0m', note: 'Partially realized' },
-  { name: 'Facebook', irr: 8.3, moic: 1.79, value: '€8.3m', note: 'Unrealized' },
-  { name: 'Netflix', irr: 5.8, moic: 1.55, value: '€35.0m', note: 'Realized' },
-  { name: 'Apple', irr: 4.8, moic: 1.39, value: '€15.0m', note: 'Unrealized' },
-  { name: 'Delivery Hero', irr: -15.3, moic: 0.33, value: '€3.5m', note: 'Mixed value' },
-  { name: 'Skype', irr: null, moic: 0, value: '€0.0m', note: 'Written off' },
-  { name: 'Zoom', irr: 33.1, moic: 6.48, value: '€12.0m', note: 'Unrealized' },
-  { name: 'N26', irr: 53.1, moic: 43.72, value: '€100.0m', note: 'Unrealized' },
-  { name: 'Revolut', irr: -54.5, moic: 0.34, value: '€1.0m', note: 'Realized' },
-  { name: 'Solarisbank', irr: 5.0, moic: 1.46, value: '€20.0m', note: 'Pre Series E' },
+  { name: 'Spotify', irr: 2.7, moic: 1.20, invested: 4316721, realised: 200000, unrealised: 5000000, color: '#d7ff37', note: 'Partially realised' },
+  { name: 'Facebook', irr: 8.3, moic: 1.79, invested: 4631014, realised: 0, unrealised: 8300000, color: '#4f73ff', note: 'Unrealised' },
+  { name: 'Netflix', irr: 5.8, moic: 1.55, invested: 22629627, realised: 35000000, unrealised: 0, color: '#ff765f', note: 'Realised' },
+  { name: 'Apple', irr: 4.8, moic: 1.39, invested: 10793618, realised: 0, unrealised: 15000000, color: '#ffe478', note: 'Unrealised' },
+  { name: 'Delivery Hero', irr: -15.3, moic: 0.33, invested: 10476929, realised: 500000, unrealised: 3000000, color: '#73ddbd', note: 'Mixed value' },
+  { name: 'Skype', irr: null, moic: 0, invested: 10407921, realised: 0, unrealised: 0, color: '#8c9087', note: 'Written off' },
+  { name: 'Zoom', irr: 33.1, moic: 6.48, invested: 1850479, realised: 0, unrealised: 12000000, color: '#a18dff', note: 'Unrealised' },
+  { name: 'N26', irr: 53.1, moic: 43.72, invested: 2287538, realised: 0, unrealised: 100000000, color: '#f2f0e9', note: 'Unrealised' },
+  { name: 'Revolut', irr: -54.5, moic: 0.34, invested: 2901409, realised: 1000000, unrealised: 0, color: '#ff5694', note: 'Realised' },
+  { name: 'Solarisbank', irr: 5.0, moic: 1.46, invested: 13704744, realised: 0, unrealised: 20000000, color: '#31c9ff', note: 'Pre Series E' },
+];
+
+const metricOptions: { key: PortfolioMetric; label: string; shortLabel: string }[] = [
+  { key: 'invested', label: 'Invested capital', shortLabel: 'invested capital' },
+  { key: 'realised', label: 'Realised capital', shortLabel: 'realised capital' },
+  { key: 'unrealised', label: 'Unrealised capital', shortLabel: 'unrealised capital' },
 ];
 
 const lpAllocations = [
@@ -63,28 +70,49 @@ const methods = [
 const formatEuro = (value: number) =>
   new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
 
-function xPosition(irr: number | null) {
-  if (irr === null) return 5;
-  return Number((6 + ((irr + 60) / 120) * 88).toFixed(4));
-}
+const formatEuroCompact = (value: number) => value === 0
+  ? '€0.00m'
+  : `€${(value / 1_000_000).toFixed(value >= 10_000_000 ? 1 : 2)}m`;
 
-function yPosition(moic: number) {
-  const normalized = Math.log10(moic + 1) / Math.log10(44.72);
-  return Number((88 - normalized * 78).toFixed(4));
+function makeDonutGradient(metric: PortfolioMetric) {
+  const total = portfolio.reduce((sum, company) => sum + company[metric], 0);
+  let cursor = 0;
+  return portfolio
+    .filter((company) => company[metric] > 0)
+    .map((company) => {
+      const start = cursor;
+      const end = start + (company[metric] / total) * 100;
+      cursor = end;
+      const colorEnd = Math.max(start, end - 0.14);
+      return `${company.color} ${start.toFixed(4)}% ${colorEnd.toFixed(4)}%, #151612 ${colorEnd.toFixed(4)}% ${end.toFixed(4)}%`;
+    })
+    .join(', ');
 }
 
 export default function Home() {
-  const [selectedCompany, setSelectedCompany] = useState('N26');
+  const [selectedCompany, setSelectedCompany] = useState('Netflix');
+  const [portfolioMetric, setPortfolioMetric] = useState<PortfolioMetric>('invested');
   const [sortMode, setSortMode] = useState<SortMode>('moic');
   const [roundView, setRoundView] = useState<'pre' | 'post'>('post');
   const [activeSection, setActiveSection] = useState('top');
   const [scrollProgress, setScrollProgress] = useState(0);
 
-  const selected = portfolio.find((company) => company.name === selectedCompany) ?? portfolio[7];
+  const selected = portfolio.find((company) => company.name === selectedCompany) ?? portfolio[2];
+  const activeMetric = metricOptions.find((metric) => metric.key === portfolioMetric) ?? metricOptions[0];
+  const portfolioTotal = portfolio.reduce((sum, company) => sum + company[portfolioMetric], 0);
+  const selectedMetricValue = selected[portfolioMetric];
+  const selectedShare = portfolioTotal > 0 ? (selectedMetricValue / portfolioTotal) * 100 : 0;
+  const donutGradient = useMemo(() => makeDonutGradient(portfolioMetric), [portfolioMetric]);
   const rankedPortfolio = useMemo(
     () => [...portfolio].sort((a, b) => sortMode === 'moic' ? b.moic - a.moic : (b.irr ?? -100) - (a.irr ?? -100)),
     [sortMode],
   );
+
+  const changePortfolioMetric = (metric: PortfolioMetric) => {
+    setPortfolioMetric(metric);
+    const largest = portfolio.reduce((best, company) => company[metric] > best[metric] ? company : best, portfolio[0]);
+    setSelectedCompany(largest.name);
+  };
 
   useEffect(() => {
     const revealObserver = new IntersectionObserver(
@@ -197,39 +225,52 @@ export default function Home() {
           <header className="section-heading light-heading">
             <div><p className="section-kicker">01 / Portfolio performance</p><span className="section-tag">Pre Series E</span></div>
             <h2>Ten companies.<br /><em>One fund view.</em></h2>
-            <p>IRR explains the speed of return. MOIC explains the magnitude. Read together, they show where value was created — and where capital was impaired.</p>
+            <p>Switch between invested cost, realised proceeds and residual value to see how each company contributes to the portfolio — then inspect return quality below.</p>
           </header>
 
           <div className="portfolio-workbench">
-            <div className="scatter-card">
-              <div className="card-topline"><span>Gross IRR × MOIC</span><span>Click a company to inspect</span></div>
-              <div className="scatter-plot" role="group" aria-label="Portfolio IRR and MOIC scatter plot">
-                <span className="axis-label y-label">MOIC · LOG SCALE</span>
-                <span className="axis-label x-label">GROSS IRR</span>
-                <span className="scatter-zero" />
-                {[0, 1, 2, 3].map((line) => <span key={line} className={`scatter-grid scatter-grid-${line}`} />)}
-                {portfolio.map((company) => (
-                  <button
-                    key={company.name}
-                    className={`company-dot ${company.name === selectedCompany ? 'selected' : ''} ${company.irr !== null && company.irr < 0 ? 'negative' : ''}`}
-                    style={{ left: `${xPosition(company.irr)}%`, top: `${yPosition(company.moic)}%` }}
-                    onClick={() => setSelectedCompany(company.name)}
-                    aria-label={`Select ${company.name}: ${company.irr === null ? 'IRR not available' : `${company.irr}% IRR`}, ${company.moic} times MOIC`}
-                  ><span>{company.name}</span></button>
-                ))}
+            <div className="composition-card">
+              <div className="composition-card-header">
+                <div><span>Portfolio composition</span><small>Pre Series E · EUR</small></div>
+                <div className="composition-filter" aria-label="Choose portfolio composition metric">
+                  {metricOptions.map((metric) => (
+                    <button key={metric.key} className={portfolioMetric === metric.key ? 'active' : ''} onClick={() => changePortfolioMetric(metric.key)}>{metric.label}</button>
+                  ))}
+                </div>
               </div>
-              <div className="scatter-scale"><span>−60%</span><span>0%</span><span>+60%</span></div>
+              <div className="composition-layout">
+                <div className="donut-wrap">
+                  <div className="portfolio-donut" style={{ background: `conic-gradient(${donutGradient})` }} role="img" aria-label={`${activeMetric.label} by portfolio company`}>
+                    <div className="donut-center">
+                      <small>Total {activeMetric.shortLabel}</small>
+                      <strong>{formatEuroCompact(portfolioTotal)}</strong>
+                      <span>{selected.name} · {selectedShare.toFixed(1)}%</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="portfolio-legend" role="list" aria-label={`${activeMetric.label} legend`}>
+                  {portfolio.map((company) => {
+                    const share = portfolioTotal > 0 ? (company[portfolioMetric] / portfolioTotal) * 100 : 0;
+                    return (
+                      <button key={company.name} role="listitem" className={company.name === selectedCompany ? 'active' : ''} onClick={() => setSelectedCompany(company.name)}>
+                        <i style={{ background: company.color }} /><span><b>{company.name}</b><small>{formatEuroCompact(company[portfolioMetric])}</small></span><em>{company[portfolioMetric] === 0 ? '—' : `${share.toFixed(1)}%`}</em>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             <aside className="company-inspector" aria-live="polite">
               <div className="inspector-label"><span>Selected company</span><span className={selected.irr !== null && selected.irr < 0 ? 'status-negative' : 'status-positive'}>{selected.note}</span></div>
               <h3>{selected.name}</h3>
               <div className="inspector-metrics">
+                <div className="inspector-active-metric"><small>{activeMetric.label}</small><strong>{formatEuroCompact(selectedMetricValue)}</strong></div>
+                <div><small>Share of {activeMetric.shortLabel}</small><strong>{selectedShare.toFixed(1)}%</strong></div>
                 <div><small>Gross IRR</small><strong>{selected.irr === null ? 'N.A.' : `${selected.irr.toFixed(1)}%`}</strong></div>
                 <div><small>Gross MOIC</small><strong>{selected.moic.toFixed(2)}×</strong></div>
-                <div><small>Current / realised value</small><strong>{selected.value}</strong></div>
               </div>
-              <p>{selected.name === 'N26' ? 'The portfolio outlier. A large residual value drives both the strongest MOIC and the highest annualised return.' : selected.irr !== null && selected.irr < 0 ? 'Value returned or remaining is below invested cost, resulting in a sub-1.0× multiple.' : 'A positive value contribution with timing and magnitude captured separately by IRR and MOIC.'}</p>
+              <p>{selectedMetricValue === 0 ? `${selected.name} has no ${activeMetric.shortLabel} in the supplied pre-round portfolio data.` : `${selected.name} represents ${selectedShare.toFixed(1)}% of total ${activeMetric.shortLabel}. Its return profile remains visible alongside the allocation view.`}</p>
             </aside>
           </div>
 
